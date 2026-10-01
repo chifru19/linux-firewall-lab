@@ -7,7 +7,7 @@ This project sets up a multi-node isolated lab environment using LXD containers 
 * **Email**: chifru19@googlemail.com
 * **Website**: [frankfru.com](https://frankfru.com)
 * **GitHub**: [chifru19](https://github.com/chifru19)
-* **LinkedIn**: [Frank Fru on LinkedIn](https://www.linkedin.com/in/frank-fru/)
+* **LinkedIn**: [Frank Fru on LinkedIn](https://www.linkedin.com)
 
 ---
 
@@ -30,13 +30,17 @@ This project sets up a multi-node isolated lab environment using LXD containers 
 * **WAN $\rightarrow$ DMZ**: Permitted via DNAT port forwarding (Port 8080 $\rightarrow$ 80).
 * **DMZ $\rightarrow$ LAN**: Explicitly dropped and logged to prevent lateral threat movement.
 
-### 2. Custom Chain Architecture & Rate-Limited Auditing
-A dedicated custom chain (`LOG_DROP`) handles dropped packets with rate-limiting (`-m limit --limit 5/min`) to prevent system log disk-exhaustion attacks.
+### 2. Advanced Stateful Inspection & Conntrack Hardening
+* **Invalid Packet Drop**: Immediately drops malformed or invalid packets (`--ctstate INVALID`) across both INPUT and FORWARD chains.
+* **State-Table Exhaustion Protection**: Mitigates SYN flood and state-table exhaustion attacks by restricting concurrent new TCP connections per source IP using `connlimit`.
 
-### 3. DoS & Brute-Force Mitigation
+### 3. Custom Chain Architecture & Rate-Limited Auditing
+A dedicated custom chain (`LOG_DROP`) handles dropped packets with strict rate-limiting (`-m limit --limit 5/min`) and `hashlimit` protection to prevent system log disk-exhaustion attacks.
+
+### 4. DoS & Brute-Force Mitigation
 Protected administrative interfaces (SSH on port 22) from brute-force password attacks by restricting new connection rates (`-m limit --limit 3/min --limit-burst 5`).
 
-### 4. Kernel Hardening & Rule Persistence
+### 5. Kernel Hardening & Rule Persistence
 * Enabled IP forwarding (`net.ipv4.ip_forward=1`) and strict Reverse-Path Filtering (`net.ipv4.conf.all.rp_filter=1`) to block IP spoofing.
 * Automated persistence via `iptables-persistent`.
 
