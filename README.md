@@ -23,26 +23,23 @@ This project sets up a multi-node isolated lab environment using LXD containers 
 
 ---
 
-## Implementation & Advanced Security Features
+## The 8 Core Enterprise Functions
 
-### 1. Multi-Zone Zone-to-Zone Routing Rules
-* **LAN $\rightarrow$ WAN**: Permitted for general internet egress.
-* **WAN $\rightarrow$ DMZ**: Permitted via DNAT port forwarding (Port 8080 $\rightarrow$ 80).
-* **DMZ $\rightarrow$ LAN**: Explicitly dropped and logged to prevent lateral threat movement.
+### Part 1: Foundational Baseline (Functions 1-4)
+1. **Zero-Trust Default Policies**: Enforces strict `DROP` defaults on both `INPUT` and `FORWARD` chains.
+2. **Stateful Inspection**: Seamlessly permits return traffic using connection tracking (`ESTABLISHED,RELATED`).
+3. **Local Loopback Allowance**: Ensures secure inter-process communication on the `lo` interface.
+4. **Kernel IP Forwarding**: Enables multi-node packet routing and gateway functionality.
 
-### 2. Advanced Stateful Inspection & Conntrack Hardening
-* **Invalid Packet Drop**: Immediately drops malformed or invalid packets (`--ctstate INVALID`) across both INPUT and FORWARD chains.
-* **State-Table Exhaustion Protection**: Mitigates SYN flood and state-table exhaustion attacks by restricting concurrent new TCP connections per source IP using `connlimit`.
-
-### 3. Custom Chain Architecture & Rate-Limited Auditing
-A dedicated custom chain (`LOG_DROP`) handles dropped packets with strict rate-limiting (`-m limit --limit 5/min`) and `hashlimit` protection to prevent system log disk-exhaustion attacks.
-
-### 4. DoS & Brute-Force Mitigation
-Protected administrative interfaces (SSH on port 22) from brute-force password attacks by restricting new connection rates (`-m limit --limit 3/min --limit-burst 5`).
-
-### 5. Kernel Hardening & Rule Persistence
-* Enabled IP forwarding (`net.ipv4.ip_forward=1`) and strict Reverse-Path Filtering (`net.ipv4.conf.all.rp_filter=1`) to block IP spoofing.
-* Automated persistence via `iptables-persistent`.
+### Part 2: Advanced Hardening, NAT & QoS (Functions 5-8)
+5. **Invalid Packet Dropping**: Instantly discards malformed or corrupted packets (`--ctstate INVALID`) across the network stack.
+6. **State-Table Exhaustion Protection**: Mitigates SYN-floods and resource starvation by limiting concurrent new TCP connections per source IP using `connlimit`.
+7. **Rate-Limited Audit Logging (`LOG_DROP`)**: Routes dropped traffic through a custom logging chain capped at 5 packets/minute to prevent disk-exhaustion log floods.
+8. **Multi-Zone Segmentation & DoS Mitigation**: 
+   * **LAN -> WAN**: Permitted for general internet egress.
+   * **WAN -> DMZ**: Permitted via DNAT port forwarding (Port 8080 -> 80) with `hashlimit` protection.
+   * **DMZ -> LAN**: Explicitly dropped and logged to prevent lateral threat movement.
+   * **Kernel Hardening**: Enabled strict Reverse-Path Filtering (`rp_filter=1`) to block IP spoofing and hardened SSH (port 22) against brute-force attacks.
 
 ---
 
@@ -51,6 +48,5 @@ Protected administrative interfaces (SSH on port 22) from brute-force password a
 linux-firewall-lab/
 ├── README.md              # Detailed project documentation
 ├── script/
-│   └── firewall-rules.sh  # Automated multi-zone firewall provisioning script
+│   └── firewall-rules.sh  # Automated 8-function enterprise firewall provisioning script
 └── .gitignore             # Excludes local configuration and cache files
-```
