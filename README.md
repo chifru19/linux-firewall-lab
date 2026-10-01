@@ -1,7 +1,7 @@
 # Linux Firewall & Networking Lab
 
 ## Overview
-This project sets up a multi-node isolated lab environment using LXD containers on Ubuntu to practice core Linux networking, stateful packet filtering, and firewall hardening (`iptables`).
+This project sets up a multi-node isolated lab environment using LXD containers on Ubuntu to practice core Linux networking, stateful packet filtering, advanced firewall hardening (`iptables`), NAT routing, and kernel security.
 
 * **Author**: Frank Fru
 * **Email**: chifru19@googlemail.com
@@ -18,36 +18,19 @@ This project sets up a multi-node isolated lab environment using LXD containers 
 
 ---
 
-## Step-by-Step Implementation
+## Implementation & Advanced Security Features
 
-### 1. Environment Initialization
-Provisioned lightweight LXD containers to bypass KVM restrictions on the host:
-```bash
-sudo lxd init --auto
-lxc launch ubuntu:24.04 firewall-node
-lxc launch ubuntu:24.04 server-node
-```
+### 1. Environment Initialization & Connectivity
+Provisioned lightweight LXD containers to bypass KVM restrictions on the host and validated internal container communication.
 
-### 2. Connectivity Validation
-Verified network communication between containers:
-```bash
-lxc exec firewall-node -- ping -c 3 10.203.193.56
-```
+### 2. Custom Chain Architecture & Rate-Limited Auditing
+A dedicated custom chain (`LOG_DROP`) handles dropped packets with rate-limiting (`-m limit --limit 5/min`) to prevent disk exhaustion.
 
-### 3. Firewall Hardening (`iptables`)
-Implemented a secure baseline stateful firewall policy on `firewall-node`:
+### 3. DoS & Brute-Force Mitigation
+Protected SSH (port 22) against brute-force attacks by restricting new connection rates.
 
-* Set default drop policies for incoming and forwarded traffic:
-  ```bash
-  iptables -P INPUT DROP
-  iptables -P FORWARD DROP
-  iptables -P OUTPUT ACCEPT
-  ```
-* Allowed established and related connections to maintain return traffic:
-  ```bash
-  iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  ```
-* Allowed internal loopback traffic:
-  ```bash
-  iptables -A INPUT -i lo -j ACCEPT
-  ```
+### 4. Network Address Translation (NAT)
+Configured Destination NAT (DNAT) for port forwarding and Source NAT (Masquerading) for egress traffic.
+
+### 5. Kernel Hardening & Rule Persistence
+Enabled IP forwarding, strict reverse-path filtering, and automated persistence via `iptables-persistent`.
