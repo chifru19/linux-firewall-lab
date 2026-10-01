@@ -7,7 +7,7 @@ This project sets up a multi-node isolated lab environment using LXD containers 
 * **Email**: chifru19@googlemail.com
 * **Website**: [frankfru.com](https://frankfru.com)
 * **GitHub**: [chifru19](https://github.com/chifru19)
-* **LinkedIn**: [Frank Fru on LinkedIn](https://www.linkedin.com)
+* **LinkedIn**: [Frank Fru on LinkedIn](https://www.linkedin.com/in/frank-fru/)
 
 ---
 
