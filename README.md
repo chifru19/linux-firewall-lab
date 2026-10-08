@@ -50,3 +50,9 @@ linux-firewall-lab/
 ├── script/
 │   └── firewall-rules.sh  # Automated 8-function enterprise firewall provisioning script
 └── .gitignore             # Excludes local configuration and cache files
+---
+
+## Alignment with Healthcare IT & Managed Services (e.g., Sonextis GmbH)
+* **Multi-Zone Network Segmentation:** Just as clinical networks isolate sensitive electronic medical record (EMR/PACS) databases from public portals, this lab implements rigid multi-zone boundaries (LAN/DMZ/WAN) to block lateral threat movement.
+* **Resilience & High Availability:** Protection against state-table exhaustion (`connlimit`) guarantees uptime and resource availability against sudden traffic spikes or denial-of-service attempts.
+* **Perimeter Defense & Data Integrity:** Strict `iptables` policies, reverse-path filtering, and invalid packet filtering adhere to the rigorous data protection and compliance standards demanded in healthcare infrastructure.
